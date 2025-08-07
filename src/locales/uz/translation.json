@@ -1,0 +1,45 @@
+{
+  "form": {
+    "multipleAnswers": "{{count}} ta to‘g‘ri javobni tanlang",
+    "title": "Test",
+    "submit": "Yuborish",
+    "cancel": "Bekor qilish",
+    "description": "Salom, siz Grand Edu  Quiz tizimiga kirdingiz. Qisqacha qoidalar — halol bo‘ling! :)",
+    "aboutYou": "O‘zingiz haqingizda ayting",
+    "parentName": "Guruh nomi",
+    "fullName": "Ismi-sharifi",
+    "phone": "Ustoz nomi",
+    "selectClass": "Fan tanlang",
+    "dataAgreement": "Men shaxsiy ma’lumotlarni saqlash va qayta ishlash shartlariga roziman",
+    "agreement": "Men shaxsiy ma’lumotlarni saqlash va qayta ishlash shartlariga roziman",
+    "test": "Halolligingiz uchun rahmat!",
+    "startForm": "Boshlash",
+    "startForm2": "Yuklanmoqda...",
+    "quizReadyBtn": "Tayyor!",
+    "loadQuestion": "Savollar yuklanmoqda...",
+    "questionError": "Savollarni yuklashda xatolik yuz berdi",
+    "categoryNotF": "Bu toifadagi savollar topilmadi",
+    "loading": "Toifalar yuklanmoqda...",
+    "error": "Toifalarni yuklashda xatolik yuz berdi. Iltimos, sahifani yangilang.",
+    "selectSubject": "Fan tanlang",
+    "requiredAnswer": "Bu savolga javob berish majburiy",
+    "tokenError": "Token topilmadi. Iltimos, testni qayta boshlang.",
+    "submitError": "Javoblarni yuborishda xatolik yuz berdi."
+  },
+  "result": {
+    "title": "Halolligingiz uchun rahmat!",
+    "yourResults": "Natijalaringiz",
+    "correctAnswers": "To‘g‘ri javoblar",
+    "from": "dan",
+    "completionRate": "Bajarish foizi",
+    "testName": "Test nomi",
+    "generatingResults": "Natijalaringiz tayyorlanmoqda!",
+    "viewDiagnostics": "Diagnostikani ko‘rish",
+    "viewTopicResults": "Mavzular bo‘yicha natijalarni ko‘rish"
+  },
+  "quizResult": {
+    "title": "Natijalaringiz tayyorlanmoqda!",
+    "description": "Natijalaringiz tayyorlanmoqda!",
+    "backButton": "Qaytadan boshlash"
+  }
+}

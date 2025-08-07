@@ -1,0 +1,115 @@
+/* MathRenderer uchun stillar */
+
+.math-content {
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+/* Inline math uchun */
+.inline-math {
+  display: inline;
+  font-size: 1em;
+  line-height: 1.2;
+}
+
+.inline-math.error {
+  color: #dc2626;
+  background-color: #fef2f2;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+/* Block math uchun */
+.block-math {
+  margin: 1rem 0;
+  text-align: center;
+  overflow-x: auto;
+}
+
+.block-math.error {
+  color: #dc2626;
+  background-color: #fef2f2;
+  padding: 8px;
+  border-radius: 6px;
+  font-family: monospace;
+  border: 1px solid #fecaca;
+}
+
+/* KaTeX elementlari uchun */
+.katex {
+  font-size: 1.1em;
+  line-height: 1.2;
+}
+
+.katex-display {
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.katex-display .katex {
+  font-size: 1.2em;
+}
+
+/* Dark mode uchun */
+.dark .katex {
+  color: #e5e7eb;
+}
+
+.dark .inline-math.error {
+  background-color: #1f2937;
+  color: #fca5a5;
+}
+
+.dark .block-math.error {
+  background-color: #1f2937;
+  color: #fca5a5;
+  border-color: #7f1d1d;
+}
+
+/* Responsive uchun */
+@media (max-width: 768px) {
+  .katex {
+    font-size: 1em;
+  }
+  
+  .katex-display .katex {
+    font-size: 1.1em;
+  }
+  
+  .block-math {
+    margin: 0.5rem 0;
+  }
+}
+
+/* Scroll uchun */
+.math-content {
+  overflow-x: auto;
+  word-wrap: break-word;
+}
+
+/* Matematik formulalar uchun maxsus stillar */
+.math-content .katex-display {
+  background-color: #f8fafc;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  margin: 16px 0;
+}
+
+.dark .math-content .katex-display {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+
+/* Inline matematik ifodalar uchun */
+.math-content .katex:not(.katex-display .katex) {
+  background-color: #f1f5f9;
+  padding: 2px 4px;
+  border-radius: 4px;
+  margin: 0 2px;
+}
+
+.dark .math-content .katex:not(.katex-display .katex) {
+  background-color: #334155;
+} 
