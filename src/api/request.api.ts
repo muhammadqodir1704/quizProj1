@@ -9,7 +9,7 @@ const axiosInstance = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json'
   },
-  timeout: 10000,
+  timeout: 30000,
   withCredentials: false
 });
 
@@ -160,66 +160,46 @@ const getCsrfToken = (): string => {
   return cookieValue || '5smUtNVxpBIHANXsvb3MSTvyqKYzRrdnazgR4ezGegpfgXinmVzARbT3WP3ZhqUi';
 };
 
+// request.api.ts faylida sendChatMessage funksiyasini bu kod bilan almashtiring
+
 export const sendChatMessage = async (testResultId: number, message: string): Promise<ChatbotResponse> => {
   try {
-    console.log('Chatbot API so\'rovini yuborish:', {
-      url: CHATBOT_API_URL,
-      payload: {
-        test_result_id: testResultId,
-        user_message: message
-      }
+    console.log('Chatbot API ga yuborilayotgan ma\'lumot:', {
+      test_result_id: testResultId,
+      user_message: message
     });
-
-    // CSRF token olish
-    const csrfToken = getCsrfToken();
-
-    // Alohida axios instance yaratamiz chatbot uchun
-    const response = await axios.post(CHATBOT_API_URL, {
+    
+    const { data } = await axios.post(CHATBOT_API_URL, {
       test_result_id: testResultId,
       user_message: message
     }, {
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'X-CSRFTOKEN': csrfToken,
-        // Referer header ham qo'shish
-        'Referer': window.location.origin,
-        'X-Requested-With': 'XMLHttpRequest'
+        'Accept': 'application/json'
       },
       timeout: 30000,
-      withCredentials: true // CSRF token uchun cookie kerak
+      withCredentials: false
     });
-
-    console.log('Chatbot API javobi:', response.data);
-
-    return response.data;
+    
+    console.log('Chatbot API dan kelgan javob:', data);
+    return data;
+    
   } catch (error) {
-    console.error('Chatbot API xatosi:', error);
+    console.error('Chatbot API xatoligi:', error);
     
     if (axios.isAxiosError(error)) {
-      console.error('Response status:', error.response?.status);
-      console.error('Response data:', error.response?.data);
-      console.error('Request config:', {
-        url: error.config?.url,
-        method: error.config?.method,
-        data: error.config?.data
-      });
+      console.error('Status:', error.response?.status);
+      console.error('Data:', error.response?.data);
       
-      // Aniq xatolik xabarini qaytarish
       if (error.response?.status === 404) {
-        throw new Error('Chatbot API manzili topilmadi (404)');
+        throw new Error('Chatbot API topilmadi');
       } else if (error.response?.status === 500) {
-        throw new Error('Server ichki xatosi (500)');
-      } else if (error.response?.status === 400) {
-        const errorMsg = error.response?.data?.message || 'Noto\'g\'ri so\'rov (400)';
-        throw new Error(errorMsg);
+        throw new Error('Server xatoligi');
       } else if (error.code === 'ECONNABORTED') {
-        throw new Error('So\'rov timeout (30 sekund)');
-      } else if (error.message === 'Network Error') {
-        throw new Error('Internetga ulanishda muammo');
+        throw new Error('So\'rov vaqti tugadi');
       }
     }
     
-    throw error;
+    throw new Error('Chatbot bilan bog\'lanishda xatolik yuz berdi');
   }
 };

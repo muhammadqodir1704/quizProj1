@@ -52,7 +52,6 @@ interface TestResult {
   subject_name?: string;
   questions?: QuestionData[];
   token?: string;
-  id?: number; // Test result ID qo'shildi
 }
 
 export default function AIChatbot() {
@@ -69,7 +68,6 @@ export default function AIChatbot() {
   const [selectedQuestion, setSelectedQuestion] = useState<QuestionData | null>(null);
   const [selectedQuestionNumber, setSelectedQuestionNumber] = useState<number>(0);
   const [allQuestions, setAllQuestions] = useState<QuestionData[]>([]);
-  const [testResultId, setTestResultId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!testResult || !id) {
@@ -77,32 +75,35 @@ export default function AIChatbot() {
       return;
     }
 
-    // Test result ID ni olish
-    const resultId = testResult.id || parseInt(id);
-    setTestResultId(resultId);
-
+    // Token ni turli joylardan olish
     let token = sessionStorage.getItem("testToken");
     
+    // Agar sessionStorage da yo'q bo'lsa, location state dan olish
     if (!token && location.state?.testResult?.token) {
       token = location.state.testResult.token;
     }
     
+    // Agar hali ham yo'q bo'lsa, URL dan olish
     if (!token) {
       const urlParams = new URLSearchParams(window.location.search);
       token = urlParams.get('token') || '';
     }
     
+    // Agar hali ham yo'q bo'lsa, Form sahifasidan kelgan token ni olish
     if (!token) {
+      // Form sahifasida saqlangan token ni olish
       const formToken = sessionStorage.getItem("formToken");
       if (formToken) {
         token = formToken;
       }
     }
 
+    // Token ni testResult ga qo'shish
     if (token && !testResult.token) {
       testResult.token = token;
     }
 
+    // Barcha savollarni yuklash
     if (token) {
       loadAllQuestions(token);
     } else {
@@ -128,7 +129,7 @@ export default function AIChatbot() {
       timestamp: new Date(),
     };
     setMessages([welcomeMsg, resultMsg]);
-  }, [testResult, id, navigate, location.state]);
+  }, [testResult, id, navigate]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -140,11 +141,9 @@ export default function AIChatbot() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // TUZATILGAN sendMessage funksiyasi
   const sendMessage = async () => {
-    if (!inputMessage.trim() || isLoading || !testResultId) {
-      console.warn("Xabar bo'sh yoki test result ID topilmadi:", { inputMessage, testResultId });
-      return;
-    }
+    if (!inputMessage.trim() || isLoading) return;
 
     const userMsg: Message = {
       id: Date.now().toString(),
@@ -160,25 +159,20 @@ export default function AIChatbot() {
 
     try {
       console.log('Chatbot API ga so\'rov yuborilmoqda:', {
-        testResultId: testResultId,
-        message: currentMessage,
-        apiUrl: 'http://38.242.205.107:8002/api/quiz/chatbot/'
+        testResultId: Number(id),
+        message: currentMessage
       });
       
-      const response = await sendChatMessage(testResultId, currentMessage);
+      const response = await sendChatMessage(Number(id), currentMessage);
       
       console.log('API dan javob keldi:', response);
       
       // API javobini to'g'ri parse qilish
       let botContent = '';
-      if (response && response.status === 'success' && response.response) {
-        botContent = response.response;
-      } else if (response && response.response) {
-        // Status success bo'lmasa ham response mavjud bo'lsa
+      if (response.status === 'success' && response.response) {
         botContent = response.response;
       } else {
-        botContent = 'API dan kutilmagan javob keldi. Qayta urinib ko\'ring.';
-        console.warn('Kutilmagan API javobi:', response);
+        botContent = 'API dan kutilmagan javob keldi';
       }
       
       const botMsg: Message = {
@@ -196,23 +190,7 @@ export default function AIChatbot() {
       let errorMessage = "Kechirasiz, xatolik yuz berdi. Qayta urinib ko'ring.";
       
       if (error instanceof Error) {
-        console.error('Error message:', error.message);
-        
-        // Network error yoki timeout
-        if (error.message.includes('Network Error') || error.message.includes('timeout')) {
-          errorMessage = "Internetga ulanishda muammo. Qayta urinib ko'ring.";
-        } 
-        // Server error
-        else if (error.message.includes('500')) {
-          errorMessage = "Server xatosi. Bir oz kutib qayta urinib ko'ring.";
-        }
-        // Not found error
-        else if (error.message.includes('404')) {
-          errorMessage = "API manzili topilmadi. Texnik yordam bilan bog'laning.";
-        }
-        else {
-          errorMessage = `Xatolik: ${error.message}`;
-        }
+        errorMessage = error.message;
       }
       
       const errorMsg: Message = {
@@ -250,25 +228,32 @@ export default function AIChatbot() {
 
   const handleQuestionClick = async (questionNumber: number) => {
     try {
+      // Token ni turli joylardan olishga harakat qilish
       let token = sessionStorage.getItem("testToken");
       
+      // Agar sessionStorage da yo'q bo'lsa, location state dan olish
       if (!token && location.state?.token) {
         token = location.state.token;
       }
-    
+      
+      // Agar hali ham yo'q bo'lsa, testResult state dan olish
       if (!token && location.state?.testResult?.token) {
         token = location.state.testResult.token;
       }
+      
+      // Agar hali ham yo'q bo'lsa, URL dan olish
       if (!token) {
         const urlParams = new URLSearchParams(window.location.search);
         token = urlParams.get('token') || '';
       }
       
+      // Token topilmadi
       if (!token) {
         console.error("Test token topilmadi");
         return;
       }
 
+      // Agar allQuestions da bor bo'lsa, u yerdan olish
       const existingQuestion = allQuestions.find(q => q.order === questionNumber);
       if (existingQuestion) {
         setSelectedQuestion(existingQuestion);
@@ -282,6 +267,7 @@ export default function AIChatbot() {
       setSelectedQuestionNumber(questionNumber);
     } catch (error) {
       console.error("Savol detayini olishda xatolik:", error);
+      // API xatoligida hech narsa ko'rsatmaymiz
     }
   };
 
@@ -309,20 +295,11 @@ export default function AIChatbot() {
     "Mavzu bo'yicha maslahat ber",
   ];
 
-  // Debug info
-  useEffect(() => {
-    console.log('Debug info:', {
-      testResultId,
-      testResult: testResult ? { ...testResult, questions: undefined } : null,
-      id,
-      hasTestResult: !!testResult
-    });
-  }, [testResultId, testResult, id]);
-
   if (!testResult) {
     return null;
   }
 
+  // Agar savol tanlangan bo'lsa, QuestionDetail ni ko'rsatish
   if (selectedQuestion) {
     return (
       <Layout className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
@@ -353,6 +330,7 @@ export default function AIChatbot() {
             />
           </Col>
 
+          {/* Chat Section */}
           {(!isMobileView || showChatbotOnMobile) && ( 
             <Col xs={24} lg={12}>
               <ChatInterface
