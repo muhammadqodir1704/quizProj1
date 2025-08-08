@@ -21,7 +21,7 @@ interface QuestionData {
 
 interface QuestionDetailProps {
   question: QuestionData;
-  questionNumber: number; // Add this to pass the question number separately
+  questionNumber: number; 
   onBack: () => void;
   onNextQuestion?: (questionNumber: number) => void;
   onPrevQuestion?: (questionNumber: number) => void;

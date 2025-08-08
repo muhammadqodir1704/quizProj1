@@ -75,35 +75,28 @@ export default function AIChatbot() {
       return;
     }
 
-    // Token ni turli joylardan olish
+   
     let token = sessionStorage.getItem("testToken");
-    
-    // Agar sessionStorage da yo'q bo'lsa, location state dan olish
+
     if (!token && location.state?.testResult?.token) {
       token = location.state.testResult.token;
     }
     
-    // Agar hali ham yo'q bo'lsa, URL dan olish
     if (!token) {
       const urlParams = new URLSearchParams(window.location.search);
       token = urlParams.get('token') || '';
     }
-    
-    // Agar hali ham yo'q bo'lsa, Form sahifasidan kelgan token ni olish
     if (!token) {
-      // Form sahifasida saqlangan token ni olish
       const formToken = sessionStorage.getItem("formToken");
       if (formToken) {
         token = formToken;
       }
     }
 
-    // Token ni testResult ga qo'shish
     if (token && !testResult.token) {
       testResult.token = token;
     }
 
-    // Barcha savollarni yuklash
     if (token) {
       loadAllQuestions(token);
     } else {
@@ -167,7 +160,6 @@ export default function AIChatbot() {
       
       console.log('API dan javob keldi:', response);
       
-      // API javobini to'g'ri parse qilish
       let botContent = '';
       if (response.status === 'success' && response.response) {
         botContent = response.response;
@@ -228,46 +220,32 @@ export default function AIChatbot() {
 
   const handleQuestionClick = async (questionNumber: number) => {
     try {
-      // Token ni turli joylardan olishga harakat qilish
       let token = sessionStorage.getItem("testToken");
-      
-      // Agar sessionStorage da yo'q bo'lsa, location state dan olish
       if (!token && location.state?.token) {
         token = location.state.token;
       }
-      
-      // Agar hali ham yo'q bo'lsa, testResult state dan olish
       if (!token && location.state?.testResult?.token) {
         token = location.state.testResult.token;
       }
-      
-      // Agar hali ham yo'q bo'lsa, URL dan olish
       if (!token) {
         const urlParams = new URLSearchParams(window.location.search);
         token = urlParams.get('token') || '';
       }
-      
-      // Token topilmadi
       if (!token) {
         console.error("Test token topilmadi");
         return;
       }
-
-      // Agar allQuestions da bor bo'lsa, u yerdan olish
       const existingQuestion = allQuestions.find(q => q.order === questionNumber);
       if (existingQuestion) {
         setSelectedQuestion(existingQuestion);
         setSelectedQuestionNumber(questionNumber);
         return;
       }
-
-      // API dan olish
       const questionDetail = await fetchQuestionDetail(token, questionNumber);
       setSelectedQuestion({ ...questionDetail, order: questionNumber });
       setSelectedQuestionNumber(questionNumber);
     } catch (error) {
       console.error("Savol detayini olishda xatolik:", error);
-      // API xatoligida hech narsa ko'rsatmaymiz
     }
   };
 
@@ -298,8 +276,6 @@ export default function AIChatbot() {
   if (!testResult) {
     return null;
   }
-
-  // Agar savol tanlangan bo'lsa, QuestionDetail ni ko'rsatish
   if (selectedQuestion) {
     return (
       <Layout className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
@@ -321,7 +297,6 @@ export default function AIChatbot() {
     <Layout className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
       <Content className="max-w-7xl mx-auto w-full">
         <Row gutter={[24, 24]} justify="center">
-          {/* Statistics Section */}
           <Col xs={24} lg={12}>
             <StatisticsCard
               testResult={testResult}
@@ -345,8 +320,6 @@ export default function AIChatbot() {
           )}
         </Row>
       </Content>
-
-      {/* Mobile Chat Toggle */}
       {isMobileView && (
         <Button
           type="primary"

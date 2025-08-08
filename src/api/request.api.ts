@@ -57,7 +57,10 @@ export interface TestResultResponse {
   correct_answer_questions: number[];
   wrong_answer_questions: number[];
   student_answers_map?: { [questionId: number]: number };
+  event: string;
+  time: string;
 }
+
 
 export const validateToken = async (token: string): Promise<TestDetail> => {
   try {
@@ -125,42 +128,27 @@ export const submitTest = async (
   token: string,
   studentName: string,
   answerIds: number[],
-  unansweredQuestionIds: number[]
+  unansweredQuestionIds: number[],
+  event?: string,
+  time?: string
 ): Promise<TestResultResponse> => {
   const { data } = await axiosInstance.post('/tests/submit/', {
     token,
     student_name: studentName,
     answer_ids: answerIds,
-    unanswered_question_ids: unansweredQuestionIds
+    unanswered_question_ids: unansweredQuestionIds,
+    event: event || "",
+    time: time || ""
   });
   return data;
 };
+
 
 export interface ChatbotResponse {
   response: string;
   status: string;
 }
 
-// CSRF token olish funksiyasi
-const getCsrfToken = (): string => {
-  // Cookie dan CSRF token olish
-  const name = 'csrftoken';
-  let cookieValue = '';
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  // Agar cookie da yo'q bo'lsa, default token qaytarish
-  return cookieValue || '5smUtNVxpBIHANXsvb3MSTvyqKYzRrdnazgR4ezGegpfgXinmVzARbT3WP3ZhqUi';
-};
-
-// request.api.ts faylida sendChatMessage funksiyasini bu kod bilan almashtiring
 
 export const sendChatMessage = async (testResultId: number, message: string): Promise<ChatbotResponse> => {
   try {
