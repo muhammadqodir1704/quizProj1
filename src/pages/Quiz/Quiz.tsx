@@ -312,7 +312,7 @@ export default function Quiz() {
             <Col>
               <Space size="large">
                 <Statistic
-                  title="Javoblangan"
+                  title="Javob berilgan"
                   value={answeredCount}
                   suffix={`/ ${questions.length}`}
                   valueStyle={{ color: "#1890ff", fontSize: "20px" }}
