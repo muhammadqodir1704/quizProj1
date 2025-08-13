@@ -105,133 +105,169 @@ export default function ChatInterface({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.4, delay: 0.1 }}
-    >
-      <div>
-        <Flex vertical gap={12} style={{ height: 420 }}>
-          <div style={{ flex: 1, overflowY: "auto", paddingRight: 4 }}>
-            <List
-              dataSource={messages}
-              renderItem={(message) => {
-                const isUser = message.type === "user";
-                const isSystem = message.type === "system";
-                const styles = bubbleStyles(message.type);
-                return (
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: isUser ? "flex-end" : "flex-start",
-                      marginBottom: 10,
-                    }}
-                  >
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.2 }}
-                      style={{
-                        display: "flex",
-                        alignItems: "flex-start",
-                        gap: 8,
-                        maxWidth: "80%",
-                        flexDirection: isUser ? "row-reverse" : "row",
-                      }}
-                    >
-                      <Avatar
-                        size="small"
-                        icon={isUser ? <UserOutlined /> : <RobotOutlined />}
-                        style={{
-                          backgroundColor: isUser
-                            ? token.colorPrimary
-                            : isSystem
-                            ? token.colorSuccess
-                            : token.colorInfo,
-                          color: "#fff",
-                          flex: "0 0 auto",
-                        }}
-                      />
-                      <div
-                        style={{
-                          padding: "8px 12px",
-                          borderRadius: 14,
-                          boxShadow: token.boxShadowTertiary,
-                          background: styles.background,
-                          border: styles.border,
-                          color: styles.color,
-                          whiteSpace: "pre-wrap",
-                          lineHeight: 1.5,
-                        }}
-                      >
-                        {message.type === "bot"
-                          ? renderMathContent(message.content)
-                          : message.content}
-                      </div>
-                    </motion.div>
-                  </div>
-                );
-              }}
-            />
-
-            {isLoading && (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-start",
-                  marginBottom: 10,
-                }}
-              >
+    <div style={{ 
+      height: '100%', 
+      display: 'flex', 
+      flexDirection: 'column',
+      overflow: 'hidden'
+    }}>
+      {/* Messages Container */}
+      <div style={{ 
+        flex: 1, 
+        overflowY: "auto", 
+        paddingRight: 4,
+        marginBottom: 12,
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+        <div style={{ flex: 1 }}>
+          <List
+            dataSource={messages}
+            renderItem={(message) => {
+              const isUser = message.type === "user";
+              const isSystem = message.type === "system";
+              const styles = bubbleStyles(message.type);
+              return (
                 <div
                   style={{
                     display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    padding: "8px 12px",
-                    background: token.colorBgContainer,
-                    border: `1px solid ${token.colorBorderSecondary}`,
-                    borderRadius: 14,
-                    boxShadow: token.boxShadowTertiary,
+                    justifyContent: isUser ? "flex-end" : "flex-start",
+                    marginBottom: 12,
                   }}
                 >
-                  <Spin size="small" />
-                  <Text type="secondary">{"Yozmoqda..."}</Text>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.2 }}
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 8,
+                      maxWidth: "85%",
+                      flexDirection: isUser ? "row-reverse" : "row",
+                    }}
+                  >
+                    <Avatar
+                      size="small"
+                      icon={isUser ? <UserOutlined /> : <RobotOutlined />}
+                      style={{
+                        backgroundColor: isUser
+                          ? token.colorPrimary
+                          : isSystem
+                          ? token.colorSuccess
+                          : token.colorInfo,
+                        color: "#fff",
+                        flex: "0 0 auto",
+                        marginTop: 2
+                      }}
+                    />
+                    <div
+                      style={{
+                        padding: "10px 14px",
+                        borderRadius: 16,
+                        boxShadow: token.boxShadowTertiary,
+                        background: styles.background,
+                        border: styles.border,
+                        color: styles.color,
+                        whiteSpace: "pre-wrap",
+                        lineHeight: 1.6,
+                        fontSize: '14px',
+                        wordBreak: 'break-word'
+                      }}
+                    >
+                      {message.type === "bot"
+                        ? renderMathContent(message.content)
+                        : message.content}
+                    </div>
+                  </motion.div>
                 </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+              );
+            }}
+          />
 
+          {isLoading && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-start",
+                marginBottom: 12,
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "10px 14px",
+                  background: token.colorBgContainer,
+                  border: `1px solid ${token.colorBorderSecondary}`,
+                  borderRadius: 16,
+                  boxShadow: token.boxShadowTertiary,
+                }}
+              >
+                <Spin size="small" />
+                <Text type="secondary" style={{ fontSize: '14px' }}>
+                  {"Yozmoqda..."}
+                </Text>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      {messages.length <= 2 && (
+        <div style={{ marginBottom: 12 }}>
           <QuickActions
             actions={quickActions}
             onActionClick={onInputChange}
             show={messages.length <= 2}
           />
+        </div>
+      )}
 
-          <div style={{ display: "flex", gap: 8 }}>
-            <TextArea
-              value={inputMessage}
-              onChange={(e) => onInputChange(e.target.value)}
-              onPressEnter={(e) => {
-                if (!e.shiftKey) {
-                  e.preventDefault();
-                  onSendMessage();
-                }
-              }}
-              placeholder="Savolingizni yozing..."
-              autoSize={{ minRows: 1, maxRows: 4 }}
-              disabled={isLoading}
-              style={{ flex: 1 }}
-            />
-            <Button
-              type="primary"
-              icon={<SendOutlined />}
-              onClick={onSendMessage}
-              disabled={isLoading || !inputMessage.trim()}
-            />
-          </div>
-        </Flex>
+      {/* Input Area */}
+      <div style={{ 
+        display: "flex", 
+        gap: 8,
+        flexShrink: 0,
+        alignItems: 'flex-end'
+      }}>
+        <TextArea
+          value={inputMessage}
+          onChange={(e) => onInputChange(e.target.value)}
+          onPressEnter={(e) => {
+            if (!e.shiftKey) {
+              e.preventDefault();
+              onSendMessage();
+            }
+          }}
+          placeholder="Savolingizni yozing..."
+          autoSize={{ minRows: 1, maxRows: 3 }}
+          disabled={isLoading}
+          style={{ 
+            flex: 1,
+            borderRadius: 12,
+            fontSize: '14px'
+          }}
+        />
+        <Button
+          type="primary"
+          icon={<SendOutlined />}
+          onClick={onSendMessage}
+          disabled={isLoading || !inputMessage.trim()}
+          size="large"
+          style={{
+            borderRadius: 12,
+            height: 'auto',
+            minHeight: 40,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        />
       </div>
-    </motion.div>
+    </div>
   );
 }

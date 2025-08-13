@@ -9,6 +9,7 @@ import {
   theme,
   Space,
   Typography,
+  Card,
 } from "antd";
 import { RobotOutlined } from "@ant-design/icons";
 import {
@@ -53,12 +54,6 @@ interface Message {
   content: string;
   timestamp: Date;
 }
-
-// interface QuestionOption {
-//   id: number;
-//   text: string;
-//   letter: string;
-// }
 
 interface QuestionData extends ApiQuestionDetail {
   order: number;
@@ -164,7 +159,6 @@ export default function AIChatbot() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // TUZATILGAN sendMessage funksiyasi
   const sendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
 
@@ -310,6 +304,7 @@ export default function AIChatbot() {
   if (!testResult) {
     return null;
   }
+
   if (selectedQuestion) {
     return (
       <Layout className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
@@ -332,8 +327,9 @@ export default function AIChatbot() {
   return (
     <Layout className="min-h-screen h-full bg-gradient-to-br from-gray-50 to-blue-50 p-6">
       <Content className="max-w-7xl mx-auto w-full flex justify-center items-center">
-        <Row gutter={[24, 24]} justify="center" className="ml-auto">
-          <Col xs={24} lg={12} className="ml-auto">
+        <Row gutter={[24, 24]} justify="center" className="w-full">
+          {/* Statistics Section */}
+          <Col xs={24} lg={12}>
             <StatisticsCard
               testResult={testResult}
               onQuestionClick={handleQuestionClick}
@@ -342,8 +338,9 @@ export default function AIChatbot() {
           </Col>
 
           {/* Chat Section */}
-          {(!isMobileView || showChatbotOnMobile) && (
-            <Col xs={24} lg={12}>
+          <Col xs={24} lg={12}>
+            {isMobileView ? (
+              // Mobile da Modal
               <Modal
                 title={
                   <Space align="center">
@@ -357,11 +354,46 @@ export default function AIChatbot() {
                 open={showChatbotOnMobile}
                 onCancel={() => setShowChatbotOnMobile(false)}
                 footer={false}
+                width="90%"
               >
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.1 }}
+                <ChatInterface
+                  messages={messages}
+                  inputMessage={inputMessage}
+                  isLoading={isLoading}
+                  onSendMessage={sendMessage}
+                  onInputChange={setInputMessage}
+                  quickActions={quickActions}
+                />
+              </Modal>
+            ) : (
+              // Desktop da Card
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.1 }}
+              >
+                <Card
+                  title={
+                    <Space align="center">
+                      <RobotOutlined style={{ color: token.colorPrimary }} />
+                      <Typography.Title level={4} style={{ margin: 0 }}>
+                        AI Yordamchi
+                      </Typography.Title>
+                    </Space>
+                  }
+                  style={{ 
+                    borderRadius: 16, 
+                    boxShadow: token.boxShadow,
+                    height: '600px',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}
+                  bodyStyle={{ 
+                    flex: 1, 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    padding: 0
+                  }}
                 >
                   <ChatInterface
                     messages={messages}
@@ -371,12 +403,14 @@ export default function AIChatbot() {
                     onInputChange={setInputMessage}
                     quickActions={quickActions}
                   />
-                </motion.div>
-              </Modal>
-            </Col>
-          )}
+                </Card>
+              </motion.div>
+            )}
+          </Col>
         </Row>
       </Content>
+
+      {/* Mobile floating button */}
       {isMobileView && (
         <div className="fixed flex items-center justify-center rounded-full bottom-6 right-6 w-15 h-15 text-2xl bg-gradient-to-r from-blue-500 to-purple-600 border-0 shadow-lg z-[1000]">
           <Button
