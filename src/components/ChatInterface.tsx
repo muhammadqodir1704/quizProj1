@@ -1,29 +1,40 @@
-"use client"
+"use client";
 
-import { useEffect, useRef } from "react"
-import { Card, Typography, Input, Button, List, Spin, Avatar, theme, Space, Flex } from "antd"
-import { SendOutlined, RobotOutlined, UserOutlined } from "@ant-design/icons"
-import { motion } from "framer-motion"
-import katex from "katex"
-import QuickActions from "./QuickActions"
+import { useEffect, useRef } from "react";
+import {
+  Card,
+  Typography,
+  Input,
+  Button,
+  List,
+  Spin,
+  Avatar,
+  theme,
+  Space,
+  Flex,
+} from "antd";
+import { SendOutlined, RobotOutlined, UserOutlined } from "@ant-design/icons";
+import { motion } from "framer-motion";
+import katex from "katex";
+import QuickActions from "./QuickActions";
 
-const { Text } = Typography
-const { TextArea } = Input
+const { Text } = Typography;
+const { TextArea } = Input;
 
 export interface Message {
-  id: string
-  type: "user" | "bot" | "system"
-  content: string
-  timestamp: Date
+  id: string;
+  type: "user" | "bot" | "system";
+  content: string;
+  timestamp: Date;
 }
 
 export interface ChatInterfaceProps {
-  messages: Message[]
-  inputMessage: string
-  isLoading: boolean
-  onSendMessage: () => void
-  onInputChange: (value: string) => void
-  quickActions: string[]
+  messages: Message[];
+  inputMessage: string;
+  isLoading: boolean;
+  onSendMessage: () => void;
+  onInputChange: (value: string) => void;
+  quickActions: string[];
 }
 
 export default function ChatInterface({
@@ -34,38 +45,41 @@ export default function ChatInterface({
   onInputChange,
   quickActions,
 }: ChatInterfaceProps) {
-  const { token } = theme.useToken()
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const { token } = theme.useToken();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const renderMathContent = (content: string) => {
     const mathDelimiters = [
       { left: "$$", right: "$$", display: true },
       { left: "$", right: "$", display: false },
-    ]
-    let processedText = content
+    ];
+    let processedText = content;
     mathDelimiters.forEach(({ left, right, display }) => {
       const regex = new RegExp(
-        `${left.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(.*?)${right.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
-        "g",
-      )
+        `${left.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(.*?)${right.replace(
+          /[.*+?^${}()|[\]\\]/g,
+          "\\$&"
+        )}`,
+        "g"
+      );
       processedText = processedText.replace(regex, (match, math) => {
         try {
           const html = katex.renderToString(math, {
             displayMode: display,
             throwOnError: false,
-          })
-          return `<span class="katex-wrapper">${html}</span>`
+          });
+          return `<span class="katex-wrapper">${html}</span>`;
         } catch (e) {
-          return match
+          return match;
         }
-      })
-    })
-    return <div dangerouslySetInnerHTML={{ __html: processedText }} />
-  }
+      });
+    });
+    return <div dangerouslySetInnerHTML={{ __html: processedText }} />;
+  };
 
   const bubbleStyles = (type: Message["type"]) => {
     switch (type) {
@@ -74,21 +88,21 @@ export default function ChatInterface({
           background: token.colorPrimaryBg,
           border: `1px solid ${token.colorPrimaryBorder}`,
           color: token.colorText,
-        }
+        };
       case "system":
         return {
           background: token.colorSuccessBg,
           border: `1px solid ${token.colorSuccessBorder}`,
           color: token.colorSuccessText,
-        }
+        };
       default:
         return {
           background: token.colorBgContainer,
           border: `1px solid ${token.colorBorderSecondary}`,
           color: token.colorText,
-        }
+        };
     }
-  }
+  };
 
   return (
     <motion.div
@@ -96,28 +110,15 @@ export default function ChatInterface({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
     >
-      <Card
-        title={
-          <Space align="center">
-            <RobotOutlined style={{ color: token.colorPrimary }} />
-            <Text strong style={{ fontSize: 16 }}>
-              {"AI Yordamchi"}
-            </Text>
-          </Space>
-        }
-        styles={{
-          body: { padding: 16 },
-        }}
-        style={{ borderRadius: 16, boxShadow: token.boxShadow }}
-      >
+      <div>
         <Flex vertical gap={12} style={{ height: 420 }}>
           <div style={{ flex: 1, overflowY: "auto", paddingRight: 4 }}>
             <List
               dataSource={messages}
               renderItem={(message) => {
-                const isUser = message.type === "user"
-                const isSystem = message.type === "system"
-                const styles = bubbleStyles(message.type)
+                const isUser = message.type === "user";
+                const isSystem = message.type === "system";
+                const styles = bubbleStyles(message.type);
                 return (
                   <div
                     style={{
@@ -145,8 +146,8 @@ export default function ChatInterface({
                           backgroundColor: isUser
                             ? token.colorPrimary
                             : isSystem
-                              ? token.colorSuccess
-                              : token.colorInfo,
+                            ? token.colorSuccess
+                            : token.colorInfo,
                           color: "#fff",
                           flex: "0 0 auto",
                         }}
@@ -163,16 +164,24 @@ export default function ChatInterface({
                           lineHeight: 1.5,
                         }}
                       >
-                        {message.type === "bot" ? renderMathContent(message.content) : message.content}
+                        {message.type === "bot"
+                          ? renderMathContent(message.content)
+                          : message.content}
                       </div>
                     </motion.div>
                   </div>
-                )
+                );
               }}
             />
 
             {isLoading && (
-              <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 10 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-start",
+                  marginBottom: 10,
+                }}
+              >
                 <div
                   style={{
                     display: "flex",
@@ -193,18 +202,20 @@ export default function ChatInterface({
             <div ref={messagesEndRef} />
           </div>
 
+          <QuickActions
+            actions={quickActions}
+            onActionClick={onInputChange}
+            show={messages.length <= 2}
+          />
 
-          <QuickActions actions={quickActions} onActionClick={onInputChange} show={messages.length <= 2} />
-
-    
           <div style={{ display: "flex", gap: 8 }}>
             <TextArea
               value={inputMessage}
               onChange={(e) => onInputChange(e.target.value)}
               onPressEnter={(e) => {
                 if (!e.shiftKey) {
-                  e.preventDefault()
-                  onSendMessage()
+                  e.preventDefault();
+                  onSendMessage();
                 }
               }}
               placeholder="Savolingizni yozing..."
@@ -220,7 +231,7 @@ export default function ChatInterface({
             />
           </div>
         </Flex>
-      </Card>
+      </div>
     </motion.div>
-  )
+  );
 }

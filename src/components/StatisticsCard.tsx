@@ -23,7 +23,11 @@ interface StatisticsCardProps {
   isMobile?: boolean;
 }
 
-export default function StatisticsCard({ testResult, onQuestionClick, isMobile = false }: StatisticsCardProps) {
+export default function StatisticsCard({
+  testResult,
+  onQuestionClick,
+  isMobile = false,
+}: StatisticsCardProps) {
   const doughnutData = {
     labels: ["To'g'ri", "Xato", "Javobsiz"],
     datasets: [
@@ -31,7 +35,9 @@ export default function StatisticsCard({ testResult, onQuestionClick, isMobile =
         data: [
           testResult.correct_answers,
           testResult.wrong_answer_questions.length,
-          testResult.total_questions - testResult.correct_answers - testResult.wrong_answer_questions.length,
+          testResult.total_questions -
+            testResult.correct_answers -
+            testResult.wrong_answer_questions.length,
         ],
         backgroundColor: ["#52c41a", "#ff4d4f", "#bfbfbf"],
         borderColor: ["#52c41a", "#ff4d4f", "#bfbfbf"],
@@ -60,7 +66,7 @@ export default function StatisticsCard({ testResult, onQuestionClick, isMobile =
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className={`rounded-2xl shadow-lg mb-6 ${isMobile ? 'mx-2' : ''}`}>
+      <Card className={`rounded-2xl shadow-lg my-6 ${isMobile ? "mx-2" : ""}`}>
         <div className="text-center mb-6">
           <Title level={2} className="text-blue-600 mb-2">
             Test Natijalari
@@ -113,9 +119,11 @@ export default function StatisticsCard({ testResult, onQuestionClick, isMobile =
           </Col>
           <Col xs={24} lg={12}>
             <div className="space-y-4">
-              <Title level={4} className="text-gray-800">Xato javoblar tahlili</Title>
+              <Title level={4} className="text-gray-800">
+                Xato javoblar tahlili
+              </Title>
               {testResult.wrong_answer_questions.length > 0 ? (
-                                  <div className="space-y-2">
+                <div className="space-y-2">
                   <Text className="text-gray-600 block mb-3">
                     Quyidagi savollarda xatolik qildingiz:
                   </Text>

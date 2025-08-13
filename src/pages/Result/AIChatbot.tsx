@@ -1,8 +1,22 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { Layout, Button, Row, Col } from "antd";
+import {
+  Layout,
+  Button,
+  Row,
+  Col,
+  Modal,
+  theme,
+  Space,
+  Typography,
+} from "antd";
 import { RobotOutlined } from "@ant-design/icons";
-import { sendChatMessage, fetchQuestionDetail, fetchAllQuestions, QuestionDetail as ApiQuestionDetail } from "../../api/request.api";
+import {
+  sendChatMessage,
+  fetchQuestionDetail,
+  fetchAllQuestions,
+  QuestionDetail as ApiQuestionDetail,
+} from "../../api/request.api";
 import StatisticsCard from "../../components/StatisticsCard";
 import ChatInterface from "../../components/ChatInterface";
 import QuestionDetail from "../../components/QuestionDetail";
@@ -19,7 +33,17 @@ import {
   Legend,
 } from "chart.js";
 
-ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, ChartTitle, Tooltip, Legend);
+ChartJS.register(
+  ArcElement,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ChartTitle,
+  Tooltip,
+  Legend
+);
+
+import { motion } from "framer-motion";
 
 const { Content } = Layout;
 
@@ -30,11 +54,11 @@ interface Message {
   timestamp: Date;
 }
 
-interface QuestionOption {
-  id: number;
-  text: string;
-  letter: string;
-}
+// interface QuestionOption {
+//   id: number;
+//   text: string;
+//   letter: string;
+// }
 
 interface QuestionData extends ApiQuestionDetail {
   order: number;
@@ -65,8 +89,11 @@ export default function AIChatbot() {
   const [isLoading, setIsLoading] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
   const [showChatbotOnMobile, setShowChatbotOnMobile] = useState(false);
-  const [selectedQuestion, setSelectedQuestion] = useState<QuestionData | null>(null);
-  const [selectedQuestionNumber, setSelectedQuestionNumber] = useState<number>(0);
+  const [selectedQuestion, setSelectedQuestion] = useState<QuestionData | null>(
+    null
+  );
+  const [selectedQuestionNumber, setSelectedQuestionNumber] =
+    useState<number>(0);
   const [allQuestions, setAllQuestions] = useState<QuestionData[]>([]);
 
   useEffect(() => {
@@ -75,16 +102,15 @@ export default function AIChatbot() {
       return;
     }
 
-   
     let token = sessionStorage.getItem("testToken");
 
     if (!token && location.state?.testResult?.token) {
       token = location.state.testResult.token;
     }
-    
+
     if (!token) {
       const urlParams = new URLSearchParams(window.location.search);
-      token = urlParams.get('token') || '';
+      token = urlParams.get("token") || "";
     }
     if (!token) {
       const formToken = sessionStorage.getItem("formToken");
@@ -114,7 +140,11 @@ export default function AIChatbot() {
     const resultMsg: Message = {
       id: "result",
       type: "bot",
-      content: `Salom, ${testResult.student_name}! Sizning natijangiz ${roundedScorePercentage}% (${testResult.correct_answers}/${testResult.total_questions}). ${
+      content: `Salom, ${
+        testResult.student_name
+      }! Sizning natijangiz ${roundedScorePercentage}% (${
+        testResult.correct_answers
+      }/${testResult.total_questions}). ${
         testResult.wrong_answer_questions.length > 0
           ? `Men sizning ${testResult.wrong_answer_questions.length} ta xato javobingizni tahlil qilib, tushuntirib bera olaman. Qaysi savolni ko'rib chiqishni xohlaysiz?`
           : "Ajoyib! Barcha savollarga to'g'ri javob berdingiz! 🌟"
@@ -144,54 +174,53 @@ export default function AIChatbot() {
       content: inputMessage,
       timestamp: new Date(),
     };
-    
+
     setMessages((prev) => [...prev, userMsg]);
     const currentMessage = inputMessage;
     setInputMessage("");
     setIsLoading(true);
 
     try {
-      console.log('Chatbot API ga so\'rov yuborilmoqda:', {
+      console.log("Chatbot API ga so'rov yuborilmoqda:", {
         testResultId: Number(id),
-        message: currentMessage
+        message: currentMessage,
       });
-      
+
       const response = await sendChatMessage(Number(id), currentMessage);
-      
-      console.log('API dan javob keldi:', response);
-      
-      let botContent = '';
-      if (response.status === 'success' && response.response) {
+
+      console.log("API dan javob keldi:", response);
+
+      let botContent = "";
+      if (response.status === "success" && response.response) {
         botContent = response.response;
       } else {
-        botContent = 'API dan kutilmagan javob keldi';
+        botContent = "API dan kutilmagan javob keldi";
       }
-      
+
       const botMsg: Message = {
         id: (Date.now() + 1).toString(),
         type: "bot",
         content: botContent,
         timestamp: new Date(),
       };
-      
+
       setMessages((prev) => [...prev, botMsg]);
-      
     } catch (error) {
-      console.error('Xabar yuborishda xatolik:', error);
-      
+      console.error("Xabar yuborishda xatolik:", error);
+
       let errorMessage = "Kechirasiz, xatolik yuz berdi. Qayta urinib ko'ring.";
-      
+
       if (error instanceof Error) {
         errorMessage = error.message;
       }
-      
+
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
         type: "bot",
         content: errorMessage,
         timestamp: new Date(),
       };
-      
+
       setMessages((prev) => [...prev, errorMsg]);
     } finally {
       setIsLoading(false);
@@ -202,16 +231,19 @@ export default function AIChatbot() {
     try {
       const questions = await fetchAllQuestions(token);
       const questionDetails: QuestionData[] = [];
-      
+
       for (const question of questions) {
         try {
           const detail = await fetchQuestionDetail(token, question.order);
           questionDetails.push({ ...detail, order: question.order });
         } catch (error) {
-          console.error(`Savol ${question.order} detayini olishda xatolik:`, error);
+          console.error(
+            `Savol ${question.order} detayini olishda xatolik:`,
+            error
+          );
         }
       }
-      
+
       setAllQuestions(questionDetails);
     } catch (error) {
       console.error("Barcha savollarni yuklashda xatolik:", error);
@@ -229,13 +261,15 @@ export default function AIChatbot() {
       }
       if (!token) {
         const urlParams = new URLSearchParams(window.location.search);
-        token = urlParams.get('token') || '';
+        token = urlParams.get("token") || "";
       }
       if (!token) {
         console.error("Test token topilmadi");
         return;
       }
-      const existingQuestion = allQuestions.find(q => q.order === questionNumber);
+      const existingQuestion = allQuestions.find(
+        (q) => q.order === questionNumber
+      );
       if (existingQuestion) {
         setSelectedQuestion(existingQuestion);
         setSelectedQuestionNumber(questionNumber);
@@ -293,11 +327,13 @@ export default function AIChatbot() {
     );
   }
 
+  const { token } = theme.useToken();
+
   return (
-    <Layout className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
-      <Content className="max-w-7xl mx-auto w-full">
-        <Row gutter={[24, 24]} justify="center">
-          <Col xs={24} lg={12}>
+    <Layout className="min-h-screen h-full bg-gradient-to-br from-gray-50 to-blue-50 p-6">
+      <Content className="max-w-7xl mx-auto w-full flex justify-center items-center">
+        <Row gutter={[24, 24]} justify="center" className="ml-auto">
+          <Col xs={24} lg={12} className="ml-auto">
             <StatisticsCard
               testResult={testResult}
               onQuestionClick={handleQuestionClick}
@@ -306,29 +342,51 @@ export default function AIChatbot() {
           </Col>
 
           {/* Chat Section */}
-          {(!isMobileView || showChatbotOnMobile) && ( 
+          {(!isMobileView || showChatbotOnMobile) && (
             <Col xs={24} lg={12}>
-              <ChatInterface
-                messages={messages}
-                inputMessage={inputMessage}
-                isLoading={isLoading}
-                onSendMessage={sendMessage}
-                onInputChange={setInputMessage}
-                quickActions={quickActions}
-              />
+              <Modal
+                title={
+                  <Space align="center">
+                    <RobotOutlined style={{ color: token.colorPrimary }} />
+                    <Typography style={{ fontSize: 16 }}>
+                      {"AI Yordamchi"}
+                    </Typography>
+                  </Space>
+                }
+                style={{ borderRadius: 16, boxShadow: token.boxShadow }}
+                open={showChatbotOnMobile}
+                onCancel={() => setShowChatbotOnMobile(false)}
+                footer={false}
+              >
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: 0.1 }}
+                >
+                  <ChatInterface
+                    messages={messages}
+                    inputMessage={inputMessage}
+                    isLoading={isLoading}
+                    onSendMessage={sendMessage}
+                    onInputChange={setInputMessage}
+                    quickActions={quickActions}
+                  />
+                </motion.div>
+              </Modal>
             </Col>
           )}
         </Row>
       </Content>
       {isMobileView && (
-        <Button
-          type="primary"
-          shape="circle"
-          size="large"
-          icon={<RobotOutlined />}
-          onClick={() => setShowChatbotOnMobile(!showChatbotOnMobile)}
-          className="fixed bottom-6 right-6 w-15 h-15 text-2xl bg-gradient-to-r from-blue-500 to-purple-600 border-0 shadow-lg z-[1000]"
-        />
+        <div className="fixed flex items-center justify-center rounded-full bottom-6 right-6 w-15 h-15 text-2xl bg-gradient-to-r from-blue-500 to-purple-600 border-0 shadow-lg z-[1000]">
+          <Button
+            type="primary"
+            shape="circle"
+            size="large"
+            icon={<RobotOutlined />}
+            onClick={() => setShowChatbotOnMobile(!showChatbotOnMobile)}
+          />
+        </div>
       )}
     </Layout>
   );

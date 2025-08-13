@@ -13,10 +13,7 @@ import {
   Spin,
   Avatar,
 } from "antd";
-import {
-  UserOutlined,
-  ExclamationCircleOutlined,
-} from "@ant-design/icons";
+import { UserOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import { fetchTestDetail } from "../../api/request.api";
 
 const { Title, Text, Paragraph } = Typography;
@@ -85,7 +82,10 @@ export default function TestForm() {
             <Title level={3} style={{ color: "#ff4d4f", marginBottom: "8px" }}>
               ❌ Xatolik
             </Title>
-            <Paragraph style={{ color: "#666", fontSize: "16px" }}>
+            <Paragraph
+              className="dark:text-white text-black text-md"
+              style={{ fontSize: "16px" }}
+            >
               Test havolasi topilmadi. Iltimos, o'qituvchingizdan to'g'ri
               havolani so'rang.
             </Paragraph>
