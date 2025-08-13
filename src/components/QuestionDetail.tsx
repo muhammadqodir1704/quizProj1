@@ -1,5 +1,5 @@
 import { Card, Typography, Button, Tag, Row, Col } from "antd";
-import { ArrowLeftOutlined, CheckCircleOutlined} from "@ant-design/icons";
+import { ArrowLeftOutlined, CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
 import "katex/dist/katex.min.css";
 import { processMathText } from "../utils/mathConverter";
@@ -17,6 +17,7 @@ interface QuestionOption {
 interface QuestionData {
   question_text: string;
   correct_answer: string;
+  incorrect_answers: string[]; // Yangi maydon qo'shildi
 }
 
 interface QuestionDetailProps {
@@ -84,10 +85,11 @@ export default function QuestionDetail({
               </Paragraph>
             </div>
 
+            {/* To'g'ri javob */}
             <Title level={4} className="mb-4">
               To'g'ri javob:
             </Title>
-            <div className="bg-green-50 p-4 rounded-lg border-2 border-green-200">
+            <div className="bg-green-50 p-4 rounded-lg border-2 border-green-200 mb-6">
               <div className="flex items-start space-x-3">
                 <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-white bg-green-500">
                   ✓
@@ -102,6 +104,37 @@ export default function QuestionDetail({
                 </div>
               </div>
             </div>
+
+            {/* Noto'g'ri javoblar */}
+            {question.incorrect_answers && question.incorrect_answers.length > 0 && (
+              <>
+                <Title level={4} className="mb-4">
+                  Noto'g'ri javoblar:
+                </Title>
+                <div className="space-y-3">
+                  {question.incorrect_answers.map((incorrectAnswer, index) => (
+                    <div 
+                      key={index}
+                      className="bg-red-50 p-4 rounded-lg border-2 border-red-200"
+                    >
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-white bg-red-500">
+                          ✗
+                        </div>
+                        <div className="flex-1">
+                          <Text className="text-base text-red-800 font-medium">
+                            {renderMathText(incorrectAnswer)}
+                          </Text>
+                          <Tag color="red" icon={<CloseCircleOutlined />} className="mt-2">
+                            Noto'g'ri javob
+                          </Tag>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </Card>
         </Col>
       </Row>

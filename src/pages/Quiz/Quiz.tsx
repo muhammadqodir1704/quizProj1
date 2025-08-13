@@ -45,6 +45,7 @@ interface TestQuestion {
   options: string[];
   correct_answer: string;
   student_answer: string;
+  incorrect_answers?: string[]; // Yangi maydon qo'shildi
 }
 
 export default function Quiz() {
@@ -67,8 +68,6 @@ export default function Quiz() {
       navigate("/");
     }
   }, [studentName, token, navigate, questionDetails]);
-
-
 
   // Savollar
   const {
@@ -118,8 +117,6 @@ export default function Quiz() {
     }
   };
 
-
-
   if (questionDetails) {
     return (
       <div
@@ -142,6 +139,7 @@ export default function Quiz() {
             {`Savol #${questionDetails.question_number} Tahlili`}
           </Title>
 
+          {/* Savol matni */}
           <div
             className={`mb-6 p-4 rounded-lg ${
               isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-50 border-gray-200"
@@ -155,6 +153,7 @@ export default function Quiz() {
             </Paragraph>
           </div>
 
+          {/* Variantlar */}
           <div className="mb-6">
             <Text strong className={`text-base block mb-2 ${isDarkMode ? "text-white" : "text-gray-800"}`}>
               Variantlar:
@@ -177,12 +176,14 @@ export default function Quiz() {
             />
           </div>
 
+          {/* To'g'ri javob */}
           <div
             className={`mb-6 p-4 rounded-lg ${
               isDarkMode ? "bg-green-900 border-green-700" : "bg-green-50 border-green-200"
             } border`}
           >
             <Text strong className={`text-base block mb-2 ${isDarkMode ? "text-green-300" : "text-green-700"}`}>
+              <CheckCircleOutlined className="mr-2" />
               To'g'ri javob:
             </Text>
             <Paragraph className={`text-base ${isDarkMode ? "text-green-300" : "text-green-700"}`}>
@@ -190,12 +191,38 @@ export default function Quiz() {
             </Paragraph>
           </div>
 
+          {/* Noto'g'ri javoblar - yangi qo'shildi */}
+          {questionDetails.incorrect_answers && questionDetails.incorrect_answers.length > 0 && (
+            <div className="mb-6">
+              <Text strong className={`text-base block mb-3 ${isDarkMode ? "text-red-300" : "text-red-700"}`}>
+                <CloseCircleOutlined className="mr-2" />
+                Noto'g'ri javoblar:
+              </Text>
+              <div className="space-y-3">
+                {questionDetails.incorrect_answers.map((incorrectAnswer, index) => (
+                  <div
+                    key={index}
+                    className={`p-3 rounded-lg ${
+                      isDarkMode ? "bg-red-900/50 border-red-700" : "bg-red-50 border-red-200"
+                    } border`}
+                  >
+                    <Paragraph className={`text-base mb-0 ${isDarkMode ? "text-red-300" : "text-red-700"}`}>
+                      <MathRenderer content={incorrectAnswer} />
+                    </Paragraph>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Sizning javobingiz */}
           <div
             className={`mb-8 p-4 rounded-lg ${
               isDarkMode ? "bg-red-900 border-red-700" : "bg-red-50 border-red-200"
             } border`}
           >
             <Text strong className={`text-base block mb-2 ${isDarkMode ? "text-red-300" : "text-red-700"}`}>
+              <WarningOutlined className="mr-2" />
               Sizning javobingiz:
             </Text>
             <Paragraph className={`text-base ${isDarkMode ? "text-red-300" : "text-red-700"}`}>

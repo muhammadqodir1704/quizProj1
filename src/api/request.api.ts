@@ -39,9 +39,11 @@ export interface Question {
   correct_answer_id: number;
 }
 
+// QuestionDetail interfeysi yangilandi
 export interface QuestionDetail {
   question_text: string;
   correct_answer: string;
+  incorrect_answers: string[]; // Yangi maydon qo'shildi
 }
 
 export interface TestResultResponse {
@@ -98,7 +100,14 @@ export const fetchQuestionDetail = async (token: string, questionOrder: number):
       question_order: questionOrder
     });
     
-    return data;
+    console.log('Question detail API response:', data);
+    
+ 
+    return {
+      question_text: data.question_text,
+      correct_answer: data.correct_answer,
+      incorrect_answers: data.incorrect_answers || [] // Default bo'sh array
+    };
   } catch (error) {
     console.error('Savol detaylini olishda xatolik:', error);
     throw error;
