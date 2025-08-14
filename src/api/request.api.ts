@@ -22,8 +22,8 @@ export interface TestDetail {
   test_name?: string;
   test_type?: string;
   expires_at?: string;
-  deadline_start: string;
   deadline_end: string;
+  time_limit: string; 
 }
 
 export interface Answer {
@@ -39,11 +39,10 @@ export interface Question {
   correct_answer_id: number;
 }
 
-// QuestionDetail interfeysi yangilandi
 export interface QuestionDetail {
   question_text: string;
   correct_answer: string;
-  incorrect_answers: string[]; // Yangi maydon qo'shildi
+  incorrect_answers: string[]; 
 }
 
 export interface TestResultResponse {
@@ -63,6 +62,52 @@ export interface TestResultResponse {
   time: string;
 }
 
+// Utility function to parse time limit (HH:MM:SS) to total seconds
+export const parseTimeLimit = (timeLimit: string): number => {
+  const [hours, minutes, seconds] = timeLimit.split(':').map(Number);
+  return (hours * 3600) + (minutes * 60) + seconds;
+};
+
+// Utility function to format seconds to HH:MM:SS
+export const formatTime = (totalSeconds: number): string => {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  
+  return [hours, minutes, seconds]
+    .map(val => val.toString().padStart(2, '0'))
+    .join(':');
+};
+
+// Utility function to check if deadline has passed
+export const isDeadlinePassed = (deadlineEnd: string): boolean => {
+  const deadline = new Date(deadlineEnd);
+  const now = new Date();
+  return now > deadline;
+};
+
+// Utility function to get remaining time until deadline
+export const getRemainingDeadlineTime = (deadlineEnd: string): string => {
+  const deadline = new Date(deadlineEnd);
+  const now = new Date();
+  const difference = deadline.getTime() - now.getTime();
+  
+  if (difference <= 0) {
+    return "Vaqt tugagan";
+  }
+  
+  const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+  
+  if (days > 0) {
+    return `${days} kun ${hours} soat`;
+  } else if (hours > 0) {
+    return `${hours} soat ${minutes} daqiqa`;
+  } else {
+    return `${minutes} daqiqa`;
+  }
+};
 
 export const validateToken = async (token: string): Promise<TestDetail> => {
   try {
@@ -152,12 +197,10 @@ export const submitTest = async (
   return data;
 };
 
-
 export interface ChatbotResponse {
   response: string;
   status: string;
 }
-
 
 export const sendChatMessage = async (testResultId: number, message: string): Promise<ChatbotResponse> => {
   try {
