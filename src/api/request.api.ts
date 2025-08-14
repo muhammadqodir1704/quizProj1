@@ -21,7 +21,6 @@ export interface TestDetail {
   valid?: boolean;
   test_name?: string;
   test_type?: string;
-  expires_at?: string;
   deadline_end: string;
   time_limit: string; 
 }

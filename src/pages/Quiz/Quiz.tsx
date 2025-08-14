@@ -7,7 +7,6 @@ import {
   Card,
   Radio,
   Button,
-  Progress,
   Typography,
   Space,
   Alert,
@@ -26,7 +25,6 @@ import {
   CloseCircleOutlined,
   WarningOutlined,
   LoadingOutlined,
-  BarChartOutlined,
   EditOutlined,
   SearchOutlined,
   ClockCircleOutlined,
@@ -310,9 +308,6 @@ export default function Quiz() {
     )
   }
 
-  const progress = (Object.keys(selectedAnswers).length / questions.length) * 100
-  const answeredCount = Object.keys(selectedAnswers).length
-
   return (
     <div
       className={`min-h-screen py-5 ${
@@ -356,30 +351,6 @@ export default function Quiz() {
                     fontWeight: "700",
                     fontFamily: "monospace",
                   }}
-                />
-                <Statistic
-                  title={
-                    <span className={isDarkMode ? "text-gray-300" : "text-gray-600"}>
-                      <BarChartOutlined className="mr-2" />
-                      Javob berilgan
-                    </span>
-                  }
-                  value={answeredCount}
-                  suffix={`/ ${questions.length}`}
-                  valueStyle={{
-                    color: isDarkMode ? "#60a5fa" : "#1890ff",
-                    fontSize: "20px",
-                    fontWeight: "600",
-                  }}
-                />
-                <Progress
-                  percent={Math.round(progress)}
-                  style={{ minWidth: "200px" }}
-                  strokeColor={
-                    isDarkMode ? { "0%": "#3b82f6", "100%": "#8b5cf6" } : { "0%": "#1890ff", "100%": "#722ed1" }
-                  }
-                  trailColor={isDarkMode ? "#374151" : "#f0f0f0"}
-                  format={(percent) => <span style={{ color: isDarkMode ? "#e5e7eb" : "#374151" }}>{percent}%</span>}
                 />
               </Space>
             </Col>
