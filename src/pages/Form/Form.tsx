@@ -1,28 +1,41 @@
-import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import {
-  Card,
-  Form,
-  Input,
-  Checkbox,
-  Button,
-  Typography,
-  Space,
-  Tag,
-  Spin,
-  Avatar,
-} from "antd";
-import { UserOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
-import { fetchTestDetail } from "../../api/request.api";
+"use client"
 
-const { Title, Text, Paragraph } = Typography;
+import { useEffect } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
+import { useQuery } from "@tanstack/react-query"
+import { Card, Form, Input, Checkbox, Button, Typography, Space, Tag, Spin, Avatar } from "antd"
+import { UserOutlined, ExclamationCircleOutlined } from "@ant-design/icons"
+import { fetchTestDetail } from "../../api/request.api"
+
+const { Title, Text, Paragraph } = Typography
 
 export default function TestForm() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { token, testDetail } = location.state || {};
-  const [form] = Form.useForm();
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { token, testDetail } = location.state || {}
+  const [form] = Form.useForm()
+
+  const cleanExpiredData = () => {
+    const sessionKey = `test_session_${token}`
+    const sessionData = localStorage.getItem(sessionKey)
+
+    if (sessionData) {
+      const { expiresAt } = JSON.parse(sessionData)
+      const now = new Date().getTime()
+
+      if (now >= expiresAt) {
+        // Data expired, remove from localStorage
+        localStorage.removeItem(sessionKey)
+      }
+    }
+  }
+
+  // Clean expired data on component mount
+  useEffect(() => {
+    if (token) {
+      cleanExpiredData()
+    }
+  }, [token])
 
   const {
     data: testDetailData,
@@ -31,24 +44,38 @@ export default function TestForm() {
   } = useQuery({
     queryKey: ["testDetail", token],
     queryFn: () => fetchTestDetail(token!),
-    enabled: !!token,
+    enabled: !!token, // Removed cooldown check, always fetch if token exists
     retry: 1,
-  });
+  })
 
-  const currentTestDetail = testDetail || testDetailData;
+  const currentTestDetail = testDetail || testDetailData
 
   useEffect(() => {
     if (!token) {
-      navigate("/");
-      return;
+      navigate("/")
+      return
     }
-  }, [token, navigate]);
+  }, [token, navigate])
 
   const handleStartTest = (values: any) => {
-    sessionStorage.setItem("studentName", values.fullName);
-    sessionStorage.setItem("testToken", token);
-    navigate("/quiz");
-  };
+    const now = new Date().getTime()
+    const oneHourLater = now + 60 * 60 * 1000 // 1 hour in milliseconds
+
+    const sessionData = {
+      studentName: values.fullName,
+      testToken: token,
+      startedAt: now,
+      expiresAt: oneHourLater,
+    }
+
+    localStorage.setItem(`test_session_${token}`, JSON.stringify(sessionData))
+
+    // Also save to sessionStorage for backward compatibility
+    sessionStorage.setItem("studentName", values.fullName)
+    sessionStorage.setItem("testToken", token)
+
+    navigate("/quiz")
+  }
 
   if (!token) {
     return (
@@ -82,17 +109,13 @@ export default function TestForm() {
             <Title level={3} style={{ color: "#ff4d4f", marginBottom: "8px" }}>
               ❌ Xatolik
             </Title>
-            <Paragraph
-              className="dark:text-white text-black text-md"
-              style={{ fontSize: "16px" }}
-            >
-              Test havolasi topilmadi. Iltimos, o'qituvchingizdan to'g'ri
-              havolani so'rang.
+            <Paragraph className="dark:text-white text-black text-md" style={{ fontSize: "16px" }}>
+              Test havolasi topilmadi. Iltimos, o'qituvchingizdan to'g'ri havolani so'rang.
             </Paragraph>
           </div>
         </Card>
       </div>
-    );
+    )
   }
 
   // Loading state
@@ -122,7 +145,7 @@ export default function TestForm() {
           </div>
         </Card>
       </div>
-    );
+    )
   }
 
   if (isError) {
@@ -157,16 +180,14 @@ export default function TestForm() {
             <Title level={3} style={{ color: "#ff4d4f", marginBottom: "8px" }}>
               ❌ Xatolik
             </Title>
-            <Paragraph
-              style={{ color: "#666", fontSize: "16px", marginBottom: "8px" }}
-            >
+            <Paragraph style={{ color: "#666", fontSize: "16px", marginBottom: "8px" }}>
               Test ma'lumotlarini yuklashda xatolik yuz berdi.
             </Paragraph>
             <Text type="secondary">Iltimos, qaytadan urinib ko'ring.</Text>
           </div>
         </Card>
       </div>
-    );
+    )
   }
 
   return (
@@ -248,24 +269,16 @@ export default function TestForm() {
             marginBottom: "32px",
           }}
         >
-          Testni boshlashdan oldin ism-familiyangizni kiriting va qoidalarga
-          rozilik bildiring.
+          Testni boshlashdan oldin ism-familiyangizni kiriting va qoidalarga rozilik bildiring.
         </Paragraph>
 
         {/* Form Section */}
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleStartTest}
-          size="large"
-        >
+        <Form form={form} layout="vertical" onFinish={handleStartTest} size="large">
           <Form.Item
             name="fullName"
             label={
               <Text strong style={{ fontSize: "16px" }}>
-                <UserOutlined
-                  style={{ marginRight: "8px", color: "#1890ff" }}
-                />
+                <UserOutlined style={{ marginRight: "8px", color: "#1890ff" }} />
                 To'liq ismingiz
               </Text>
             }
@@ -308,10 +321,7 @@ export default function TestForm() {
               }}
             >
               <Checkbox style={{ fontSize: "15px", lineHeight: "1.6" }}>
-                <Text>
-                  Men test qoidalari bilan tanishdim va halol test ishlashga
-                  va'da beraman
-                </Text>
+                <Text>Men test qoidalari bilan tanishdim va halol test ishlashga va'da beraman</Text>
               </Checkbox>
             </Card>
           </Form.Item>
@@ -338,5 +348,5 @@ export default function TestForm() {
         </Form>
       </Card>
     </div>
-  );
+  )
 }
