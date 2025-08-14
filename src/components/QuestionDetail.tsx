@@ -39,10 +39,30 @@ export default function QuestionDetail({
 }: QuestionDetailProps) {
   
   const renderMathText = (text: string) => {
-    // Avval matematik ifodalarni LaTeX formatga o'tkazish
-    const processedText = processMathText(text);
-    return <MathRenderer content={processedText} />;
+    if (!text) return null;
+    
+    try {
+      // Debug uchun
+      console.log('Original text:', text);
+      
+      // Matematik ifodalarni to'g'ri formatga o'tkazish
+      const processedText = processMathText(text);
+      console.log('Processed text:', processedText);
+      
+      return <MathRenderer content={processedText} />;
+    } catch (error) {
+      console.warn('Math rendering error:', error);
+      // Agar MathRenderer ishlamasa, oddiy matn qaytarish
+      return <span style={{ color: '#ff4d4f', fontFamily: 'monospace' }}>{text}</span>;
+    }
   };
+
+  // Matematik ifodalarni wrapper div bilan o'rash
+  const MathWrapper = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
+    <div className={`math-wrapper ${className}`} style={{ minHeight: '24px' }}>
+      {children}
+    </div>
+  );
 
   return (
     <motion.div
@@ -80,9 +100,9 @@ export default function QuestionDetail({
               Savol matni:
             </Title>
             <div className="bg-gray-50 p-4 rounded-lg mb-6">
-              <Paragraph className="text-lg leading-relaxed mb-0">
+              <MathWrapper className="text-lg leading-relaxed">
                 {renderMathText(question.question_text)}
-              </Paragraph>
+              </MathWrapper>
             </div>
 
             {/* To'g'ri javob */}
@@ -95,9 +115,9 @@ export default function QuestionDetail({
                   ✓
                 </div>
                 <div className="flex-1">
-                  <Text className="text-base text-green-800 font-medium">
+                  <MathWrapper className="text-base text-green-800 font-medium">
                     {renderMathText(question.correct_answer)}
-                  </Text>
+                  </MathWrapper>
                   <Tag color="green" icon={<CheckCircleOutlined />} className="mt-2">
                     To'g'ri javob
                   </Tag>
@@ -122,9 +142,9 @@ export default function QuestionDetail({
                           ✗
                         </div>
                         <div className="flex-1">
-                          <Text className="text-base text-red-800 font-medium">
+                          <MathWrapper className="text-base text-red-800 font-medium">
                             {renderMathText(incorrectAnswer)}
-                          </Text>
+                          </MathWrapper>
                           <Tag color="red" icon={<CloseCircleOutlined />} className="mt-2">
                             Noto'g'ri javob
                           </Tag>

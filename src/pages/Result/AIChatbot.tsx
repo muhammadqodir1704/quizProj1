@@ -78,6 +78,9 @@ export default function AIChatbot() {
   const location = useLocation();
   const navigate = useNavigate();
   const testResult = location.state?.testResult as TestResult;
+  
+  // ⭐ MUHIM: Barcha hooks komponent boshida chaqiriladi
+  const { token } = theme.useToken();
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
@@ -301,6 +304,7 @@ export default function AIChatbot() {
     "Mavzu bo'yicha maslahat ber",
   ];
 
+  // ⭐ Erta return'larni oxiriga ko'chirish
   if (!testResult) {
     return null;
   }
@@ -321,8 +325,6 @@ export default function AIChatbot() {
       </Layout>
     );
   }
-
-  const { token } = theme.useToken();
 
   return (
     <Layout className="min-h-screen h-full bg-gradient-to-br from-gray-50 to-blue-50 p-6">
@@ -346,7 +348,7 @@ export default function AIChatbot() {
                   <Space align="center">
                     <RobotOutlined style={{ color: token.colorPrimary }} />
                     <Typography style={{ fontSize: 16 }}>
-                      {"AI Yordamchi"}
+                      {"GRAND Intellect"}
                     </Typography>
                   </Space>
                 }
@@ -377,7 +379,7 @@ export default function AIChatbot() {
                     <Space align="center">
                       <RobotOutlined style={{ color: token.colorPrimary }} />
                       <Typography.Title level={4} style={{ margin: 0 }}>
-                        AI Yordamchi
+                        {"GRAND Intellect"}
                       </Typography.Title>
                     </Space>
                   }

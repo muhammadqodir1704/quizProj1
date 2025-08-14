@@ -1,6 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+"use client"
+
+import { useState, useEffect, useMemo } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
+import { useQuery } from "@tanstack/react-query"
 import {
   Card,
   Radio,
@@ -16,11 +18,10 @@ import {
   Modal,
   Spin,
   List,
-} from "antd";
+} from "antd"
 import {
   ExclamationCircleOutlined,
   ArrowLeftOutlined,
-  TrophyOutlined,
   FileTextOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
@@ -30,46 +31,40 @@ import {
   EditOutlined,
   HomeOutlined,
   SearchOutlined,
-} from "@ant-design/icons";
-import { fetchTestQuestions, submitTest, type Question } from "../../api/request.api";
-import { useTheme } from "../../contexts/ThemeContext";
-import { MathRenderer } from "../../components/MathRenderer";
-import Cheating from "../../components/Cheating";
-import "../../styles/MathRenderer.css";
+} from "@ant-design/icons"
+import { fetchTestQuestions, submitTest, type Question } from "../../api/request.api"
+import { useTheme } from "../../contexts/ThemeContext"
+import { MathRenderer } from "../../components/MathRenderer"
+import Cheating from "../../components/Cheating"
+import "../../styles/MathRenderer.css"
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text, Paragraph } = Typography
 
 interface TestQuestion {
-  question_number: number;
-  question_text: string;
-  options: string[];
-  correct_answer: string;
-  student_answer: string;
-  incorrect_answers?: string[]; // Yangi maydon qo'shildi
+  question_number: number
+  question_text: string
+  options: string[]
+  correct_answer: string
+  student_answer: string
+  incorrect_answers?: string[]
 }
 
 export default function Quiz() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: number }>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate()
+  const location = useLocation()
 
-  const studentName = sessionStorage.getItem("studentName") || "";
-  const token = sessionStorage.getItem("testToken") || "";
-  const { isDark: isDarkMode } = useTheme();
+  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: number }>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const studentName = sessionStorage.getItem("studentName") || ""
+  const token = sessionStorage.getItem("testToken") || ""
+  const { isDark: isDarkMode } = useTheme()
 
   const { questionDetails, testResultId } = (location.state || {}) as {
-    questionDetails?: TestQuestion;
-    testResultId?: string;
-  };
+    questionDetails?: TestQuestion
+    testResultId?: string
+  }
 
-  useEffect(() => {
-    if (!questionDetails && (!studentName || !token)) {
-      navigate("/");
-    }
-  }, [studentName, token, navigate, questionDetails]);
-
-  // Savollar
   const {
     data: questions,
     isLoading,
@@ -78,44 +73,48 @@ export default function Quiz() {
     queryKey: ["questions", token],
     queryFn: () => fetchTestQuestions(token!),
     enabled: !!token && !questionDetails,
-  });
+  })
+
+  const { answerIds, unansweredIds } = useMemo(() => {
+    const ids = Object.values(selectedAnswers)
+    const answeredQ = Object.keys(selectedAnswers).map(Number)
+    const allQ = (questions || []).map((q) => q.id)
+    const unanswered = allQ.filter((id) => !answeredQ.includes(id))
+    return { answerIds: ids, unansweredIds: unanswered }
+  }, [selectedAnswers, questions])
+
+  useEffect(() => {
+    if (!questionDetails && (!studentName || !token)) {
+      navigate("/")
+    }
+  }, [studentName, token, navigate, questionDetails])
 
   const handleAnswerSelect = (questionId: number, answerId: number) => {
     setSelectedAnswers((prev) => ({
       ...prev,
       [questionId]: answerId,
-    }));
-  };
-
-  const { answerIds, unansweredIds } = useMemo(() => {
-    const ids = Object.values(selectedAnswers);
-    const answeredQ = Object.keys(selectedAnswers).map(Number);
-    const allQ = (questions || []).map((q) => q.id);
-    const unanswered = allQ.filter((id) => !answeredQ.includes(id));
-    return { answerIds: ids, unansweredIds: unanswered };
-  }, [selectedAnswers, questions]);
+    }))
+  }
 
   const handleSubmit = async (skipConfirmation = false) => {
     if (!skipConfirmation) {
-      const ok = window.confirm(
-        "Testni yakunlashni xohlaysizmi? Javoblaringiz o'zgartirib bo'lmaydi!"
-      );
-      if (!ok) return;
+      const ok = window.confirm("Testni yakunlashni xohlaysizmi? Javoblaringiz o'zgartirib bo'lmaydi!")
+      if (!ok) return
     }
-    setIsSubmitting(true);
+    setIsSubmitting(true)
 
     try {
-      const result = await submitTest(token!, studentName!, answerIds, unansweredIds);
-      sessionStorage.removeItem("studentName");
-      navigate(`/result/${result.id}`, { state: { testResult: result, token } });
+      const result = await submitTest(token!, studentName!, answerIds, unansweredIds)
+      sessionStorage.removeItem("studentName")
+      navigate(`/result/${result.id}`, { state: { testResult: result, token } })
     } catch (error) {
       Modal.error({
         title: "Xatolik",
         content: "Xatolik yuz berdi. Qayta urinib ko'ring.",
-      });
-      setIsSubmitting(false);
+      })
+      setIsSubmitting(false)
     }
-  };
+  }
 
   if (questionDetails) {
     return (
@@ -126,15 +125,12 @@ export default function Quiz() {
       >
         <Card
           className={`w-full max-w-2xl rounded-2xl shadow-2xl border-0 p-6 ${
-            isDarkMode 
-              ? "bg-gradient-to-br from-gray-800 to-gray-900 shadow-gray-900/40" 
+            isDarkMode
+              ? "bg-gradient-to-br from-gray-800 to-gray-900 shadow-gray-900/40"
               : "bg-gradient-to-br from-white to-gray-50 shadow-gray-300/20"
           }`}
         >
-          <Title
-            level={3}
-            className={`text-center mb-6 font-bold ${isDarkMode ? "text-white" : "text-gray-800"}`}
-          >
+          <Title level={3} className={`text-center mb-6 font-bold ${isDarkMode ? "text-white" : "text-gray-800"}`}>
             <SearchOutlined className="mr-2" />
             {`Savol #${questionDetails.question_number} Tahlili`}
           </Title>
@@ -163,9 +159,7 @@ export default function Quiz() {
               renderItem={(item, index) => (
                 <List.Item
                   className={`py-2 ${
-                    index !== questionDetails.options.length - 1
-                      ? "border-b border-gray-200 dark:border-gray-600"
-                      : ""
+                    index !== questionDetails.options.length - 1 ? "border-b border-gray-200 dark:border-gray-600" : ""
                   }`}
                 >
                   <Text className={isDarkMode ? "text-gray-300" : "text-gray-600"}>
@@ -191,7 +185,7 @@ export default function Quiz() {
             </Paragraph>
           </div>
 
-          {/* Noto'g'ri javoblar - yangi qo'shildi */}
+          {/* Noto'g'ri javoblar */}
           {questionDetails.incorrect_answers && questionDetails.incorrect_answers.length > 0 && (
             <div className="mb-6">
               <Text strong className={`text-base block mb-3 ${isDarkMode ? "text-red-300" : "text-red-700"}`}>
@@ -246,7 +240,7 @@ export default function Quiz() {
           </Button>
         </Card>
       </div>
-    );
+    )
   }
 
   if (isLoading) {
@@ -256,11 +250,13 @@ export default function Quiz() {
           isDarkMode ? "bg-gradient-to-br from-gray-900 to-gray-800" : "bg-gradient-to-br from-blue-50 to-indigo-100"
         }`}
       >
-        <Card className={`text-center p-10 rounded-2xl shadow-2xl border-0 ${
-          isDarkMode 
-            ? "bg-gradient-to-br from-gray-800 to-gray-900 shadow-gray-900/30" 
-            : "bg-gradient-to-br from-white to-gray-50 shadow-gray-200/30"
-        }`}>
+        <Card
+          className={`text-center p-10 rounded-2xl shadow-2xl border-0 ${
+            isDarkMode
+              ? "bg-gradient-to-br from-gray-800 to-gray-900 shadow-gray-900/30"
+              : "bg-gradient-to-br from-white to-gray-50 shadow-gray-200/30"
+          }`}
+        >
           <Spin size="large" indicator={<LoadingOutlined spin />} />
           <Title level={4} className={`mt-4 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
             <FileTextOutlined className="mr-2" />
@@ -268,7 +264,7 @@ export default function Quiz() {
           </Title>
         </Card>
       </div>
-    );
+    )
   }
 
   if (isError || !questions?.length) {
@@ -278,11 +274,13 @@ export default function Quiz() {
           isDarkMode ? "bg-gradient-to-br from-gray-900 to-gray-800" : "bg-gradient-to-br from-blue-50 to-indigo-100"
         }`}
       >
-        <Card className={`max-w-md text-center p-8 rounded-2xl shadow-2xl border-0 ${
-          isDarkMode 
-            ? "bg-gradient-to-br from-red-900/20 to-gray-800 shadow-red-900/20" 
-            : "bg-gradient-to-br from-red-50 to-white shadow-red-200/20"
-        }`}>
+        <Card
+          className={`max-w-md text-center p-8 rounded-2xl shadow-2xl border-0 ${
+            isDarkMode
+              ? "bg-gradient-to-br from-red-900/20 to-gray-800 shadow-red-900/20"
+              : "bg-gradient-to-br from-red-50 to-white shadow-red-200/20"
+          }`}
+        >
           <ExclamationCircleOutlined className={`text-6xl mb-4 ${isDarkMode ? "text-red-400" : "text-red-500"}`} />
           <Title level={3} className={isDarkMode ? "text-red-400" : "text-red-500"}>
             <CloseCircleOutlined className="mr-2" />
@@ -294,12 +292,12 @@ export default function Quiz() {
           </Paragraph>
         </Card>
       </div>
-    );
+    )
   }
 
   // Hisob-kitoblar
-  const progress = (Object.keys(selectedAnswers).length / questions.length) * 100;
-  const answeredCount = Object.keys(selectedAnswers).length;
+  const progress = (Object.keys(selectedAnswers).length / questions.length) * 100
+  const answeredCount = Object.keys(selectedAnswers).length
 
   return (
     <div
@@ -307,7 +305,7 @@ export default function Quiz() {
         isDarkMode ? "bg-gradient-to-br from-gray-900 to-gray-800" : "bg-gradient-to-br from-blue-50 to-indigo-100"
       }`}
     >
-      {/* Anti-Cheat: auto-submit va natijaga navigate */}
+      {/* Anti-Cheat */}
       {!!token && !!studentName && !!questions?.length && (
         <Cheating
           token={token}
@@ -315,21 +313,20 @@ export default function Quiz() {
           answerIds={answerIds}
           unansweredQuestionIds={unansweredIds}
           throttleMs={15000}
-          devToolsPollMs={1000} 
-  
+          devToolsPollMs={1000}
           onLog={(payload) => {
-            console.log("Cheat LOG payload:", payload);
+            console.log("Cheat LOG payload:", payload)
           }}
         />
       )}
 
       {/* Yuqori panel */}
       <Affix offsetTop={0}>
-        <div className={`px-6 py-4 shadow-xl backdrop-blur-lg ${
-          isDarkMode 
-            ? "bg-gray-900/95 border-b border-gray-700/50" 
-            : "bg-white/95 border-b border-gray-200/50"
-        }`}>
+        <div
+          className={`px-6 py-4 shadow-xl backdrop-blur-lg ${
+            isDarkMode ? "bg-gray-900/95 border-b border-gray-700/50" : "bg-white/95 border-b border-gray-200/50"
+          }`}
+        >
           <Row justify="space-between" align="middle">
             <Col>
               <Space size="large">
@@ -342,26 +339,20 @@ export default function Quiz() {
                   }
                   value={answeredCount}
                   suffix={`/ ${questions.length}`}
-                  valueStyle={{ 
-                    color: isDarkMode ? "#60a5fa" : "#1890ff", 
+                  valueStyle={{
+                    color: isDarkMode ? "#60a5fa" : "#1890ff",
                     fontSize: "20px",
-                    fontWeight: "600"
+                    fontWeight: "600",
                   }}
                 />
-                <Progress 
-                  percent={Math.round(progress)} 
+                <Progress
+                  percent={Math.round(progress)}
                   style={{ minWidth: "200px" }}
                   strokeColor={
-                    isDarkMode 
-                      ? { '0%': '#3b82f6', '100%': '#8b5cf6' }
-                      : { '0%': '#1890ff', '100%': '#722ed1' }
+                    isDarkMode ? { "0%": "#3b82f6", "100%": "#8b5cf6" } : { "0%": "#1890ff", "100%": "#722ed1" }
                   }
                   trailColor={isDarkMode ? "#374151" : "#f0f0f0"}
-                  format={(percent) => (
-                    <span style={{ color: isDarkMode ? '#e5e7eb' : '#374151' }}>
-                      {percent}%
-                    </span>
-                  )}
+                  format={(percent) => <span style={{ color: isDarkMode ? "#e5e7eb" : "#374151" }}>{percent}%</span>}
                 />
               </Space>
             </Col>
@@ -395,10 +386,12 @@ export default function Quiz() {
               description="Salom, siz Grand Edu Quiz tizimiga kirdingiz. Qisqacha qoidalar — halol bo'ling! :)"
               type="info"
               showIcon
-              className={`mb-6 rounded-xl ${
-                isDarkMode ? "bg-blue-900 border-blue-700" : "bg-blue-50 border-blue-200"
-              }`}
-              message={<Text strong className={isDarkMode ? "text-blue-300" : "text-blue-600"}>Muhim eslatma</Text>}
+              className={`mb-6 rounded-xl ${isDarkMode ? "bg-blue-900 border-blue-700" : "bg-blue-50 border-blue-200"}`}
+              message={
+                <Text strong className={isDarkMode ? "text-blue-300" : "text-blue-600"}>
+                  Muhim eslatma
+                </Text>
+              }
             />
           </Col>
         </Row>
@@ -413,8 +406,8 @@ export default function Quiz() {
                       ? "shadow-blue-900/30 border-blue-400 bg-gradient-to-br from-blue-900/20 to-gray-800"
                       : "shadow-blue-200/50 border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50"
                     : isDarkMode
-                    ? "shadow-gray-800/50 border-gray-600 bg-gradient-to-br from-gray-800 to-gray-900 hover:border-gray-500"
-                    : "shadow-gray-200/30 border-gray-200 bg-gradient-to-br from-white to-gray-50 hover:border-gray-300"
+                      ? "shadow-gray-800/50 border-gray-600 bg-gradient-to-br from-gray-800 to-gray-900 hover:border-gray-500"
+                      : "shadow-gray-200/30 border-gray-200 bg-gradient-to-br from-white to-gray-50 hover:border-gray-300"
                 }`}
                 title={
                   <Space>
@@ -425,8 +418,8 @@ export default function Quiz() {
                             ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white"
                             : "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
                           : isDarkMode
-                          ? "bg-gradient-to-r from-gray-700 to-gray-600 text-gray-300"
-                          : "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600"
+                            ? "bg-gradient-to-r from-gray-700 to-gray-600 text-gray-300"
+                            : "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600"
                       }`}
                     >
                       {index + 1}
@@ -465,17 +458,23 @@ export default function Quiz() {
                                 ? "bg-gradient-to-r from-blue-800/50 to-purple-800/50 border-2 border-blue-400 shadow-lg shadow-blue-900/30"
                                 : "bg-gradient-to-r from-blue-100 to-purple-100 border-2 border-blue-400 shadow-lg shadow-blue-200/40"
                               : isDarkMode
-                              ? "bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 hover:border-gray-500 hover:shadow-md"
-                              : "bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 hover:border-gray-300 hover:shadow-md"
+                                ? "bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 hover:border-gray-500 hover:shadow-md"
+                                : "bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 hover:border-gray-300 hover:shadow-md"
                           }`}
                           onClick={() => handleAnswerSelect(question.id, answer.id)}
                         >
                           <Radio value={answer.id}>
-                            <Text className={`text-sm font-medium ${
-                              selectedAnswers[question.id] === answer.id
-                                ? isDarkMode ? "text-blue-200" : "text-blue-800"
-                                : isDarkMode ? "text-gray-200" : "text-gray-800"
-                            }`}>
+                            <Text
+                              className={`text-sm font-medium ${
+                                selectedAnswers[question.id] === answer.id
+                                  ? isDarkMode
+                                    ? "text-blue-200"
+                                    : "text-blue-800"
+                                  : isDarkMode
+                                    ? "text-gray-200"
+                                    : "text-gray-800"
+                              }`}
+                            >
                               <MathRenderer content={answer.text} />
                             </Text>
                           </Radio>
@@ -490,5 +489,5 @@ export default function Quiz() {
         </Row>
       </div>
     </div>
-  );
+  )
 }
